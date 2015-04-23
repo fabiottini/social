@@ -3,6 +3,7 @@ require_once("simple_html_dom.php");
 
 $login_email = "";
 $login_pass = "";
+$hashtag = "";
 
 function debug($ele){
 	echo "<pre>";print_r($ele);echo "</pre>";
@@ -49,7 +50,7 @@ for($i=0;$i<count($d[0]);$i++)
 
 
 
-$page = cURL("https://m.facebook.com/hashtag/lucca",null,$cookie,null);
+$page = cURL("https://m.facebook.com/hashtag/$hashtag",null,$cookie,null);
 //$page = str_replace('class=\\"','"',$page);
 //$page = str_replace('id=\\"','"',$page);
 //$page = str_replace('\u003C','<',$page);
