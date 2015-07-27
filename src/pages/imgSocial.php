@@ -153,7 +153,26 @@ function caricaNoImage($w,$h){
     return $img->outBuffer(IMAGETYPE_JPEG);
 }
 
+$urlCHANGE = 0;
+
+function pulisciURL($url){
+    global $urlCHANGE;
+    if( ($strPOS=strrpos($url, "///")) > 0){
+        $strNEW = substr($url,$strPOS,strlen($url));
+        $strNEW = str_replace('///','?',$strNEW);
+        $strNEW = str_replace('//','&',$strNEW);
+        $urlCHANGE = 1;
+        return substr($url,0,$strPOS).$strNEW;
+    }else{
+        $urlCHANGE =0;
+        return $url;
+    }
+}
+
 function caricaImageUrl($url,$w,$h){
+global $urlCHANGE;
+    $url = pulisciURL($url);
+
     $im = imagecreatefromjpeg($url);
     ob_start();
     imagejpeg($im);
@@ -161,7 +180,10 @@ function caricaImageUrl($url,$w,$h){
     $img = new Image();
     $img->fromString($imSTR, IMAGETYPE_JPEG);
     if($w != null && $h != null){
-        $img->resizeCutFa($w, $h);
+        if($urlCHANGE == 1)
+            $img->resizeSfondoFabio($w, $h);
+        else
+            $img->resizeCutFa($w, $h);
     }
     return $img->outBuffer(IMAGETYPE_JPEG);
 }
@@ -174,6 +196,7 @@ $h        = $_GET['h'];
 
 if(!is_numeric($w)) $w=100;
 if(!is_numeric($h)) $h=100;
+
 
 $img = caricaImageUrl($url,$w,$h);
 

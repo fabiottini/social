@@ -46,9 +46,9 @@ class Twitter{
 			);
 
 			if(  isset($value["entities"]["media"]) && count($value["entities"]["media"]) > 0 ){
-				$media 							= $value["entities"]["media"][0];
+				$media 					= $value["entities"]["media"][0];
 				$arrTMP["type"] 		= htmlentities($media["type"]);
-				$arrTMP["standard"] = htmlentities($media["media_url"]);
+				$arrTMP["standard"]		= htmlentities($media["media_url"]);
 				$arrTMP["link"]			= htmlentities($media["url"]);
 			}else{
 				$arrTMP["type"]		= "text";

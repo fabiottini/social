@@ -1,29 +1,16 @@
 <?
-require_once("instagram.php");
-require_once("twitter.php");
+require_once("pages/config.php");
 
-/**
- * INIT VAR
- */
-$settingsTWITTER = array(
-    'oauth_access_token' 				=> "",
-    'oauth_access_token_secret' => "",
-    'consumer_key' 							=> "",
-    'consumer_secret'						=> ""
-);
-$settingsINSTAGRAM = array(
-	'userid' 					=> '',
-	'client_id' 			=> '',
-	'access_token'		=> ''
-);
+require_once("pages/instagram.php");
+require_once("pages/twitter.php");
+require_once("pages/facebook.php");
 
-$tw  = new Twitter($settingsTWITTER, "<HASH_TAG>","<USER>");
-$in  = new Instagram($settingsINSTAGRAM, '<HASH_TAG>');
+
+$tw  = new Twitter($settingsTWITTER, "#$HASHTAG","<USER>");
+$in  = new Instagram($settingsINSTAGRAM, "$HASHTAG");
+$fb  = new Facebook($settingsFACEBOOK, "$HASHTAG");
 
 $num 		= 0;
-$numPerPag 	= 8;
-
-
 
 function convertHTMLutf8($str){
 	return html_entity_decode($str, ENT_QUOTES, "utf-8");
@@ -31,7 +18,7 @@ function convertHTMLutf8($str){
 
 function printQuadrato($arr, $tipo, $numPerPag){
 	$contaPagine = 0;
-	$quadrato = file_get_contents("./quadrato.html");
+	$quadrato = file_get_contents("./pages/quadrato.html");
 	$ret = "";
 
 	global $num;
@@ -46,18 +33,21 @@ function printQuadrato($arr, $tipo, $numPerPag){
 			$social 	= convertHTMLutf8($value["social"]);
 
 			if($social == "twitter"){
-				$socialLogo = '<img class="padding0_twitter" src="/img/twitter_48.png" width="32" height="32" />';
+				$socialLogo = '<img class="padding0_twitter" src="img/twitter_48.png" width="32" height="32" />';
 				$url = "https://twitter.com/$user/status/$id";
 			}else if($social == "instagram"){
-				$socialLogo = '<img class="padding0_istagram" src="/img/instagram_50.png" width="32" height="32" />';
+				$socialLogo = '<img class="padding0_istagram" src="img/instagram_50.png" width="32" height="32" />';
 				$url =	convertHTMLutf8($value["link"]);
+			}else if($social == "facebook"){
+				$socialLogo = '<img class="padding0_istagram" src="img/facebook.jpg" width="32" height="32" />';
+				$url = $value["link"];//"https://facebook.com/$userId";
 			}else{
 				$socialLogo = "";
 				$url = "#";
 			}
 
 			if($value["type"] == "photo" || $value["type"] == "image"){
-				$image = "<img class='padding0' src='/imgSocial.php?w=137&h=187&url=".$value['standard']."' />";
+				$image = "<img class='padding0' src='pages/imgSocial.php?w=137&h=187&url=".($value['standard'])."' />";
 			}else{
 				$image = "";
 			}
@@ -117,28 +107,31 @@ function creaMenuPagine($num,$numPerPag,$label){
 
 $twitter 	= $tw->getVar();
 $instagram 	= $in->getVar();
+$facebook   = $fb->getVar();
 
-$instaUser = $instagram[1];
+
+$instaUser = $instagram[1]; 
 $instaTag  = $instagram[0];
 
 $tweetUser = $twitter[1];
 $tweetTag  = $twitter[0];
 
+$facebookTag = $facebook[0];
+$facebookUser = null;
+
 /** MERGE TWITTER AND INSTAGRAM OF THE USER */
-if( $tweetUser != null && $instaUser != null ){
-	$user = $tweetUser + $instaUser;
+if( $tweetUser != null || $instaUser != null ){
+	$user = $tweetUser + $instaUser; + $facebookUser ;
 	ksort($user);
-}else{
-	$user = ( $tweetUser != null )?$instaUser:$instaUser;
 }
 
 /** MERGE TWITTER AND INSTAGRAM OF THE HASHTAG */
-if( $tweetTag != null && $instaTag != null ){
-	$tag = $tweetTag + $instaTag;
+if( $tweetTag != null || $instaTag != null ){
+	$tag = $tweetTag + $instaTag + $facebookTag;
 	ksort($tag);
-}else{
-	$tag = ( $tweetTag != null )?$tweetTag:$instaTag;
 }
+
+
 
 /** GENERATE THE INTERFACE */
 $ret = printQuadrato($user,'userPage_', $numPerPag);
